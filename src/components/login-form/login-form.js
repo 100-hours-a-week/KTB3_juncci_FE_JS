@@ -5,16 +5,21 @@ export function LoginForm() {
   const form = html`
     <form class="login-form">
       <h2 class="login-form__title">로그인</h2>
+      <div class = "login-form__body">
+      
       <div class="login-form__field">
-        <input type="email" class="login-form__input" placeholder="이메일" required />
+      <p class="login-form__label"> 이메일 </p>
+        <input type="email" class="login-form__input" placeholder="이메일을 입력하세요" required />
       </div>
 
-      <div class="login-form__field">
-        <input type="password" class="login-form__input" placeholder="비밀번호" required />
+      <div class="pWd-form__field">
+      <p class="login-form__label"> 비밀번호 </p>
+        <input type="password" class="login-form__input" placeholder="비밀번호를 입력하세요" required />
       </div>
-
-      <button type="submit" class="login-form__button">로그인</button>
-      <p class="login-form__message" id="login-message"></p>
+      <p class="helper-text">* helper text</p>
+        <button type="submit" class="login-form__button">로그인</button>
+         <p class="signup-text" id="signup-text">회원가입</p>
+      </div>
     </form>
   `;
 
