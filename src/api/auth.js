@@ -14,7 +14,7 @@ export async function login({ email, password }) {
       throw new Error(result.error?.detail || '로그인 실패');
     }
 
-    return result.data; // { user_id, access_token }
+    return result.data; 
   } catch (error) {
     console.error('[API ERROR] login:', error.message);
     throw error;
