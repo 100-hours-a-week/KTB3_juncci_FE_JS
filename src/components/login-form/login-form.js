@@ -1,6 +1,6 @@
-// src/components/login-form/login-form.js
 import '../ui/input-box.js';
 import '../ui/button.js';
+import { html } from '../../core/html.js';
 import { routeChange } from '../../core/router.js';
 import { store } from '../../core/store.js';
 import { validateEmail, validatePassword } from '../../utils/validators.js';
@@ -11,75 +11,76 @@ class LoginForm extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
 
-    const style = document.createElement('style');
-    style.textContent = `
-      :host {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-      }
+    const style = html`
+      <style>
+        :host {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          width: 100%;
+        }
 
-      h2 {
-        font-size: 32px;
-        font-weight: 700;
-        margin-top: 180px;
-        color: #222;
-        text-align: center;
-      }
+        h2 {
+          font-size: 32px;
+          font-weight: 700;
+          margin-top: 180px;
+          color: #222;
+          text-align: center;
+        }
 
-      .login-form__body {
-        width: 390px;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        margin-top: 40px;
-      }
+        .login-form__body {
+          width: 390px;
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+          margin-top: 40px;
+        }
 
-      .field {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
+        .field {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
 
-      .helper-text {
-        font-size: 12px;
-        color: red;
-        min-height: 14px;
-      }
+        .helper-text {
+          font-size: 12px;
+          color: red;
+          min-height: 14px;
+        }
 
-      .signup-link {
-        text-align: center;
-        font-size: 14px;
-        color: #515251;
-      }
+        .signup-link {
+          text-align: center;
+          font-size: 14px;
+          color: #515251;
+        }
 
-      .signup-link button {
-        border: none;
-        background: none;
-        color: #7F6AEE;
-        font-weight: 600;
-        cursor: pointer;
-      }
+        .signup-link button {
+          border: none;
+          background: none;
+          color: #7F6AEE;
+          font-weight: 600;
+          cursor: pointer;
+        }
+      </style>
     `;
 
-    const wrapper = document.createElement('form');
-    wrapper.innerHTML = `
-      <h2>로그인</h2>
-      <div class="login-form__body">
-        <div class="field">
-          <input-box label="이메일" type="email" placeholder="이메일을 입력하세요"></input-box>
+    const wrapper = html`
+      <form>
+        <h2>로그인</h2>
+        <div class="login-form__body">
+          <div class="field">
+            <input-box label="이메일" type="email" placeholder="이메일을 입력하세요"></input-box>
+          </div>
+          <div class="field">
+            <input-box label="비밀번호" type="password" placeholder="비밀번호를 입력하세요"></input-box>
+            <p class="helper-text" id="helper-text"></p>
+          </div>
+          <custom-button label="로그인" disabled></custom-button>
+          <p class="signup-link">
+            <button type="button" id="signup-button">회원가입</button>
+          </p>
         </div>
-        <div class="field">
-          <input-box label="비밀번호" type="password" placeholder="비밀번호를 입력하세요"></input-box>
-          <p class="helper-text" id="helper-text"></p>
-        </div>
-        <custom-button label="로그인" disabled></custom-button>
-        <p class="signup-link">
-          아직 회원이 아니신가요?
-          <button type="button" id="signup-button">회원가입 페이지로 이동</button>
-        </p>
-      </div>
+      </form>
     `;
 
     this.shadowRoot.append(style, wrapper);
@@ -130,7 +131,7 @@ class LoginForm extends HTMLElement {
       store.setState({ [name]: value });
     });
 
-    // ✅ form submit (API 연동 추가)
+    // form submit (API 연동 추가)
     const form = this.shadowRoot.querySelector('form');
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
