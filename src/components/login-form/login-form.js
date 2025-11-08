@@ -32,14 +32,13 @@ class LoginForm extends HTMLElement {
           width: 390px;
           display: flex;
           flex-direction: column;
-          gap: 20px;
+          gap: 10px;
           margin-top: 40px;
         }
 
         .field {
           display: flex;
           flex-direction: column;
-          gap: 8px;
         }
 
         .helper-text {
@@ -50,14 +49,14 @@ class LoginForm extends HTMLElement {
 
         .signup-link {
           text-align: center;
-          font-size: 14px;
+          font-size: 12px;
           color: #515251;
         }
 
         .signup-link button {
           border: none;
           background: none;
-          color: #7F6AEE;
+          color: #a3a3a3ff;
           font-weight: 600;
           cursor: pointer;
         }
