@@ -2,6 +2,7 @@
 
 :root {
   --layout-width: 600px;
+  --content-width: 600px;
   --header-height: 104px;
   --font-family-base: "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif;
 }
@@ -13,17 +14,19 @@
 }
 
 body {
-  background: #F4F5F7;
+  background: #f4f5f7;
   font-family: var(--font-family-base);
+  margin: 0;
   display: flex;
   justify-content: center;
 }
 
 #root {
-  width: var(--layout-width);
-  min-height: 100vh;
-  border: 1px solid #ddd;
-  background: #F4F5F7;
+  width: 100%;
+  max-width: var(--layout-width);
+  min-height:100%;
+  background: #fff;
+  border: 1px solid #dcdcdc;
 }
 
 header {
@@ -35,18 +38,24 @@ header {
   border-bottom: 1px solid #ddd;
 }
 
-header h1 {
-  font-size: 32px;         
-  font-weight: 400;        
-  color: #222;            
-  margin: 0;
+.header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
 }
 
-header .profile {
+.header__inner h1 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #222;
+  text-align: center;
+  flex: 1;
+}
+
+.header__inner .profile {
   position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
+  right: 0;
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -54,5 +63,5 @@ header .profile {
 }
 
 main {
-  padding: 16px;
+  padding: 32px 0 120px;
 }
