@@ -1,9 +1,20 @@
+import { html } from '../core/html.js';
+import '../components/layout/container.js';
+import '../components/signup-form/signup-form.js';
+
 export function SignupPage() {
-  const container = document.createElement('section');
-  container.style.padding = '40px 24px';
-  container.innerHTML = `
-    <h2>회원가입</h2>
-    <p>회원가입 페이지를 준비 중입니다.</p>
+  return html`
+    <section class="signup-page">
+      <style>
+        .signup-page {
+          padding: 60px 0 120px;
+          background: #f4f5f7;
+          min-height: 100vh;
+        }
+      </style>
+      <layout-container>
+        <signup-form></signup-form>
+      </layout-container>
+    </section>
   `;
-  return container;
 }

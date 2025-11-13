@@ -3,9 +3,12 @@ import { MainPage } from '../pages/main.js';
 import { LoginPage } from '../pages/login.js';
 import { PostPage } from '../pages/post.js';
 import { PostWritePage } from '../pages/post-write.js';
+import { PostEditPage } from '../pages/post-edit.js';
 import { PostDetailPage } from '../pages/post-detail.js';
 import { SignupPage } from '../pages/signup.js';
 import { initRouter, getCurrentPath } from './router.js';
+import { AccountProfilePage } from '../pages/account-profile.js';
+import { AccountPasswordPage } from '../pages/account-password.js';
 
 export function App() {
   const root = document.getElementById('root');
@@ -20,8 +23,8 @@ export function App() {
     const path = getCurrentPath();
     main.innerHTML = '';
 
-    if (path === '/' || path === '/main') {
-      main.append(MainPage());
+    if (path === '/' || path === '/login') {
+      main.append(LoginPage());
     } else if (path === '/login') {
       main.append(LoginPage());
     } else if (path === '/post') {
@@ -29,10 +32,19 @@ export function App() {
     } else if (path === '/post/new') {
       main.append(PostWritePage());
     } else if (path.startsWith('/post/')) {
-      const [, , postId = ''] = path.split('/');
-      main.append(PostDetailPage({ postId }));
+      const editMatch = path.match(/^\/post\/([^/]+)\/edit$/);
+      if (editMatch) {
+        main.append(PostEditPage({ postId: editMatch[1] }));
+      } else {
+        const [, , postId = ''] = path.split('/');
+        main.append(PostDetailPage({ postId }));
+      }
     } else if (path === '/signup') {
       main.append(SignupPage());
+    } else if (path === '/account/profile') {
+      main.append(AccountProfilePage());
+    } else if (path === '/account/password') {
+      main.append(AccountPasswordPage());
     } else {
       main.innerHTML = '<p style="text-align:center;">404 Not Found</p>';
     }

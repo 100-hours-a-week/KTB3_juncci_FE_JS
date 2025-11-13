@@ -1,4 +1,3 @@
-// src/core/store.js
 export const store = (() => {
   let state = {
     email: '',
@@ -16,7 +15,6 @@ export const store = (() => {
 
   const subscribe = (listener) => {
     listeners.add(listener);
-    // 구독 취소 가능하도록 unsubscribe 반환
     return () => listeners.delete(listener);
   };
 

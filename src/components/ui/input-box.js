@@ -3,9 +3,12 @@ class InputBox extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
 
-    
     const style = document.createElement('style');
     style.textContent = `
+      :host {
+        display: block;
+        width: 100%;
+      }
 
       label {
         font-weight: 600;
@@ -23,41 +26,82 @@ class InputBox extends HTMLElement {
         box-sizing: border-box;
         outline: none;
         transition: border-color 0.2s;
+        background-color:transparent;
       }
 
       input:focus {
         border-color: #7F6AEE;
+      }
+
+      :host([error]) input {
+        border-color: #FF5F5F;
+      }
+
+      :host([required]) label::after {
+        content: '*';
+        color: #7F6AEE;
+        margin-left: 4px;
       }
     `;
 
     const labelText = this.getAttribute('label') || '';
     const type = this.getAttribute('type') || 'text';
     const placeholder = this.getAttribute('placeholder') || '';
+    const name = this.getAttribute('name') || type;
+    this.fieldName = name;
 
     const wrapper = document.createElement('div');
     wrapper.innerHTML = `
       <label>${labelText}</label>
-      <input type="${type}" placeholder="${placeholder}" />
+      <input type="${type}" name="${name}" placeholder="${placeholder}" />
     `;
 
     this.shadowRoot.append(style, wrapper);
   }
 
   connectedCallback() {
-    const input = this.shadowRoot.querySelector('input');
-    const name = this.getAttribute('type'); // email, password 구분용
+    this.inputElement = this.shadowRoot.querySelector('input');
+    if (!this.inputElement) return;
 
-    input.addEventListener('input', (e) => {
+    const name = this.fieldName || this.getAttribute('type') || '';
+
+    this.handleInput = (e) => {
       this.dispatchEvent(new CustomEvent('input-change', {
         bubbles: true,
         composed: true,
         detail: { name, value: e.target.value }
       }));
-    });
+    };
+
+    this.handleBlur = (e) => {
+      this.dispatchEvent(new CustomEvent('input-blur', {
+        bubbles: true,
+        composed: true,
+        detail: { name, value: e.target.value }
+      }));
+    };
+
+    this.inputElement.addEventListener('input', this.handleInput);
+    this.inputElement.addEventListener('blur', this.handleBlur);
   }
 
   get value() {
-    return this.shadowRoot.querySelector('input').value;
+    return this.inputElement?.value || '';
+  }
+
+  set value(newValue) {
+    if (this.inputElement) {
+      this.inputElement.value = newValue ?? '';
+    }
+  }
+
+  disconnectedCallback() {
+    if (this.inputElement && this.handleInput) {
+      this.inputElement.removeEventListener('input', this.handleInput);
+    }
+    if (this.inputElement && this.handleBlur) {
+      this.inputElement.removeEventListener('blur', this.handleBlur);
+    }
   }
 }
 
