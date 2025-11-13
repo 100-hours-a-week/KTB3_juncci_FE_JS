@@ -77,7 +77,7 @@
     │   ├── router.js               # SPA 라우터 (경로 변경 및 페이지 전환)
     │   └── store.js                # 전역 상태 관리 (예: 사용자 세션, 토큰)
     │
-    ├── pages                       # 📄 실제 페이지 단위 컴포넌트 (라우터에 연결됨)
+    ├── pages                       # 실제 페이지 단위 컴포넌트 (라우터에 연결됨)
     │   ├── account-password.js     # 비밀번호 변경 페이지
     │   ├── account-profile.js      # 프로필 수정 페이지
     │   ├── login.js                # 로그인 페이지
