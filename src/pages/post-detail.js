@@ -7,8 +7,13 @@ export function PostDetailPage({ postId }) {
     <section class="post-detail-page">
       <style>
         .post-detail-page {
-          background: #f4f5f7;
-          min-height: 100vh;
+          background: #ffffffff;
+          min-height: 90vh;
+          padding:10px;
+          border-radius: 12px;
+          border: 1px solid #d8e7f0;
+          max-width: 95%;
+          margin: 0 auto;
         }
       </style>
       <layout-container>

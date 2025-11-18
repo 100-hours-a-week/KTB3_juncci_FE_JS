@@ -17,6 +17,7 @@ export class PostEditor extends HTMLElement {
     // 기본 상태 설정
     this.mode = 'write'; // 'write' | 'edit'
     this.postId = null;
+    this.isMounted = false;
 
     // 폼 데이터 상태
     this.state = {
@@ -58,11 +59,12 @@ export class PostEditor extends HTMLElement {
         }
 
         h2 {
-          font-size: 24px;
+          font-size: 40px;
           font-weight: 700;
           text-align: center;
           margin: 0;
           color: #222;
+          font-family: 'Nanum Pen Script', cursive;
         }
 
         form {
@@ -90,7 +92,7 @@ export class PostEditor extends HTMLElement {
         }
 
         .required {
-          color: #7f6aee;
+          color: #d96060;
           margin-left: 4px;
         }
 
@@ -106,7 +108,7 @@ export class PostEditor extends HTMLElement {
 
         .input-box:focus {
           outline: none;
-          border-color: #7f6aee;
+          border-color: ##d96060;
         }
 
         .input-box.error {
@@ -192,12 +194,12 @@ export class PostEditor extends HTMLElement {
     // HTML 레이아웃 정의
     const layout = html`
       <section class="post-editor">
-        <h2 data-role="heading">게시글 작성</h2>
+        <h2 data-role="heading">Just write!</h2>
         <form novalidate>
           <!-- 제목 입력 -->
           <div class="field">
             <div class="field-header">
-              <label>제목<span class="required">*</span></label>
+              <label>Title<span class="required">*</span></label>
               <span class="char-count" data-role="title-count">0/26</span>
             </div>
             <input
@@ -206,34 +208,34 @@ export class PostEditor extends HTMLElement {
               type="text"
               maxlength="26"
               data-role="title"
-              placeholder="제목을 입력해주세요. (최대 26글자)"
+              placeholder="Please enter a title. (Up to 26 characters)"
             />
           </div>
 
           <!-- 내용 입력 -->
           <div class="field">
-            <label>내용<span class="required">*</span></label>
+            <label>Content<span class="required">*</span></label>
             <textarea
               class="input-box"
               name="content"
               data-role="content"
-              placeholder="내용을 입력해주세요."
+              placeholder="Please enter the content."
             ></textarea>
             <p class="helper-text" data-helper="content"></p>
           </div>
 
-          <!-- 이미지 업로드 -->
+          <!-- 
           <div class="field image-field">
-            <label>이미지</label>
+            <label>img</label>
             <div class="image-upload">
               <input type="file" accept="image/*" class="image-input" data-role="image-input" />
-              <span class="image-filename" data-role="image-filename">파일을 선택해주세요.</span>
+              <span class="image-filename" data-role="image-filename">Plz select img</span>
             </div>
           </div>
-
+이미지 업로드 -->
           <!-- 제출 버튼 -->
           <div class="form-actions">
-            <custom-button type="submit" label="완료" data-role="submit" disabled></custom-button>
+            <custom-button type="submit" label="submit" data-role="submit" disabled></custom-button>
           </div>
         </form>
       </section>
@@ -257,13 +259,26 @@ export class PostEditor extends HTMLElement {
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleImageChange = this.handleImageChange.bind(this);
+    this.syncAttributes = this.syncAttributes.bind(this);
+  }
+
+  // mode / post-id 속성을 내부 상태와 동기화
+  syncAttributes() {
+    const modeAttr = (this.getAttribute('mode') || '').toLowerCase();
+    this.mode = modeAttr === 'edit' ? 'edit' : 'write';
+    const postIdAttr = this.getAttribute('post-id');
+    if (postIdAttr) {
+      this.postId = postIdAttr;
+    }
   }
 
   // DOM에 추가될 때
   connectedCallback() {
+    this.syncAttributes();
     this.shadowRoot.addEventListener('input', this.handleInputChange);
     if (this.formEl) this.formEl.addEventListener('submit', this.handleSubmit);
     if (this.imageInput) this.imageInput.addEventListener('change', this.handleImageChange);
+    this.isMounted = true;
 
     // 수정 모드인 경우 게시글 불러오기
     const postId = this.getAttribute('post-id');
@@ -285,11 +300,27 @@ export class PostEditor extends HTMLElement {
 
   // 속성 변경 시 처리
   attributeChangedCallback(name, _old, value) {
+    if (!this.isMounted) {
+      // 연결 전에는 상태만 저장
+      if (name === 'mode') {
+        this.mode = value === 'edit' ? 'edit' : 'write';
+      } else if (name === 'post-id') {
+        this.postId = value;
+      }
+      return;
+    }
+
     if (name === 'mode') {
       this.mode = value === 'edit' ? 'edit' : 'write';
+      this.applyInitialValues();
+      if (this.mode === 'edit' && this.postId) {
+        this.loadPost(this.postId);
+      }
     } else if (name === 'post-id') {
       this.postId = value;
-      if (value) this.loadPost(value);
+      if (this.postId && this.mode === 'edit') {
+        this.loadPost(this.postId);
+      }
     }
   }
 
@@ -319,12 +350,20 @@ export class PostEditor extends HTMLElement {
 
   // 초기값 적용
   applyInitialValues() {
+    if (
+      !this.titleInput ||
+      !this.contentInput ||
+      !this.submitButton ||
+      !this.headingEl
+    ) {
+      return;
+    }
     this.titleInput.value = this.state.title || '';
     this.contentInput.value = this.state.content || '';
-    this.imageInput.value = '';
+    if (this.imageInput) this.imageInput.value = '';
     this.updateImageFilename(this.state.image ? '기존 파일 명' : undefined);
-    this.headingEl.textContent = this.mode === 'edit' ? '게시글 수정' : '게시글 작성';
-    this.submitButton.setAttribute('label', this.mode === 'edit' ? '수정하기' : '완료');
+    this.headingEl.textContent = this.mode === 'edit' ? 'Edit Post' : 'Just write!';
+    this.submitButton.setAttribute('label', this.mode === 'edit' ? 'edit' : 'submit');
     this.updateTitleCount();
     this.updateSubmitState();
   }
@@ -441,7 +480,9 @@ export class PostEditor extends HTMLElement {
 
   // 파일 이름 표시
   updateImageFilename(name) {
-    this.imageFilenameEl.textContent = name || '파일을 선택해주세요.';
+    if (this.imageFilenameEl) {
+      this.imageFilenameEl.textContent = name || 'Plz select file.';
+    }
   }
 
   // 폼 제출 처리
@@ -457,24 +498,25 @@ export class PostEditor extends HTMLElement {
     }
 
     // API 전송 데이터 구성
+    const images = (this.state.image ? [this.state.image] : []).filter(Boolean);
     const payload = {
       title: this.state.title.trim(),
       content: this.state.content.trim(),
-      images: [this.state.image || ''],
+      ...(images.length ? { images } : {}),
     };
 
     // 버튼 비활성화
     this.submitButton.setAttribute('disabled', '');
-    this.submitButton.setAttribute('label', this.mode === 'edit' ? '수정 중...' : '등록 중...');
+    this.submitButton.setAttribute('label', this.mode === 'edit' ? 'edit...' : 'loading...');
 
     try {
       if (this.mode === 'edit' && this.postId) {
         await updatePost(this.postId, payload);
-        alert('게시글이 수정되었습니다.');
+        alert('Edit Post!');
         routeChange(`/post/${this.postId}`);
       } else {
         await createPost(payload);
-        alert('게시글이 등록되었습니다.');
+        alert('Upload Post');
         routeChange('/post');
       }
     } catch (error) {
@@ -483,7 +525,7 @@ export class PostEditor extends HTMLElement {
       if (this.mode === 'edit') alert(msg);
     } finally {
       this.submitButton.removeAttribute('disabled');
-      this.submitButton.setAttribute('label', this.mode === 'edit' ? '수정하기' : '완료');
+      this.submitButton.setAttribute('label', this.mode === 'edit' ? 'Edit Post' : 'submit');
       this.updateSubmitState();
     }
   }
@@ -496,11 +538,13 @@ export class PostEditor extends HTMLElement {
   // 입력 폼 활성화/비활성화
   disableForm(state) {
     const disabled = Boolean(state);
-    this.titleInput.disabled = disabled;
-    this.contentInput.disabled = disabled;
-    this.imageInput.disabled = disabled;
-    if (disabled) this.submitButton.setAttribute('disabled', '');
-    else this.updateSubmitState();
+    if (this.titleInput) this.titleInput.disabled = disabled;
+    if (this.contentInput) this.contentInput.disabled = disabled;
+    if (this.imageInput) this.imageInput.disabled = disabled;
+    if (this.submitButton) {
+      if (disabled) this.submitButton.setAttribute('disabled', '');
+      else this.updateSubmitState();
+    }
   }
 }
 

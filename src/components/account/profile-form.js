@@ -1,6 +1,7 @@
 import '../ui/button.js';
 import '../ui/input-box.js';
 import '../ui/confirm-modal.js';
+import '../ui/toast-message.js';
 import { html } from '../../core/html.js';
 import { fetchUserById, updateProfile, deleteUser } from '../../api/users.js';
 import {
@@ -166,9 +167,6 @@ class ProfileForm extends HTMLElement {
     this.withdrawButton?.removeEventListener('click', this.handleWithdraw);
     this.withdrawModal?.removeEventListener('cancel', this.handleModalCancel);
     this.withdrawModal?.removeEventListener('confirm', this.handleModalConfirm);
-    if (this.toastTimer) {
-      clearTimeout(this.toastTimer);
-    }
   }
 
   // 닉네임 유효성 검사
@@ -233,7 +231,7 @@ class ProfileForm extends HTMLElement {
       };
       await updateProfile(userId, payload);
       this.serverErrors.nickname = '';
-      this.showToast('수정 완료');
+      this.showToast('update complete');
       dispatchAuthChange({ status: 'profile-updated' });
       await this.loadProfile();
     } catch (error) {
@@ -255,7 +253,7 @@ class ProfileForm extends HTMLElement {
     if (this.isDeleting) return;
     const userId = getStoredUserId();
     if (!userId) {
-      this.showToast('로그인이 필요합니다.');
+      this.showToast('Please log in.');
       return;
     }
 
@@ -269,13 +267,13 @@ class ProfileForm extends HTMLElement {
       clearStoredToken();
       clearStoredUserId();
       dispatchAuthChange({ status: 'logout' });
-      this.showToast('회원 탈퇴가 완료되었습니다.');
+      this.showToast('Account deleted.');
       setTimeout(() => {
         routeChange('/login');
       }, 400);
     } catch (error) {
       console.error('[ProfileForm] deleteUser error:', error);
-      this.showToast(error.message || '회원 탈퇴를 실패했습니다.');
+      this.showToast(error.message || 'Account deletion failed.');
     } finally {
       this.isDeleting = false;
       if (this.withdrawButton) {
@@ -299,13 +297,7 @@ class ProfileForm extends HTMLElement {
 
   // 토스트 메시지 표시
   showToast(message) {
-    if (!this.toast) return;
-    this.toast.textContent = message;
-    this.toast.hidden = false;
-    if (this.toastTimer) clearTimeout(this.toastTimer);
-    this.toastTimer = setTimeout(() => {
-      this.toast.hidden = true;
-    }, 2000);
+    this.toast?.show(message);
   }
 
    // 사용자 프로필 로드
@@ -344,7 +336,7 @@ class ProfileForm extends HTMLElement {
     }
   }
 
-   // 🔹 렌더링 함수
+   // 렌더링 함수
   render() {
     const style = html`
       <style>
@@ -362,11 +354,13 @@ class ProfileForm extends HTMLElement {
         }
 
         .profile-form__title {
-          font-size: 32px;
-          font-weight: 700;
+          font-size: 80px;
+          font-weight: 00;
+          margin-top: 120px;
           color: #111;
           margin: 0;
           text-align: center;
+          font-family: 'Nanum Pen Script', cursive;
         }
 
         .profile-form__section {
@@ -376,6 +370,10 @@ class ProfileForm extends HTMLElement {
           gap: 16px;
           align-items: center;
           box-sizing: border-box;
+          background-color: #ffffff;
+          padding: 20px;
+          border-radius: 12px;
+          border: 1px solid #d8e7f0;
         }
 
         .profile-form__section-label {
@@ -406,9 +404,6 @@ class ProfileForm extends HTMLElement {
           background: #e9e9e9;
         }
 
-        .profile-form__avatar.is-dragover {
-          border-color: #7f6aee;
-        }
 
         .profile-form__avatar-button {
           position: absolute;
@@ -444,12 +439,14 @@ class ProfileForm extends HTMLElement {
           display: flex;
           flex-direction: column;
           gap: 24px;
+          border-radius: 12px;
+          border: 1px solid #d8e7f0;
+          background-color: #ffffff;
         }
 
         .profile-form__field {
           display: flex;
           flex-direction: column;
-          gap: 8px;
         }
 
         .profile-form__email-label {
@@ -491,27 +488,15 @@ class ProfileForm extends HTMLElement {
 
 
 
-        .profile-form__toast {
-          position: fixed;
-          bottom: 32px;
-          left: 50%;
-          transform: translateX(-50%);
-          padding: 12px 20px;
-          border-radius: 999px;
-          background: #ACA0EB;
-          color: #fff;
-          font-size: 14px;
-          z-index: 1000;
-        }
       </style>
     `;
 
     const template = html`
       <div data-role="profile-form-root">
         <form class="profile-form" data-role="profile-form">
-          <h2 class="profile-form__title">회원정보수정</h2>
+          <h2 class="profile-form__title">Edit Profile</h2>
           <div class="profile-form__section">
-            <label class="profile-form__section-label">프로필 사진*</label>
+            <label class="profile-form__section-label">Avatar</label>
             <div
               class="profile-form__avatar"
               data-role="profile-circle"
@@ -520,45 +505,45 @@ class ProfileForm extends HTMLElement {
               aria-label="프로필 이미지를 변경하려면 클릭 또는 드래그하세요"
             >
               <span class="profile-form__avatar-text" data-role="profile-placeholder">
-                클릭하거나 이미지를 끌어다 놓으세요
+                Click or drag your image here!
               </span>
               <button
                 type="button"
                 class="profile-form__avatar-button"
                 data-role="profile-change"
               >
-                변경
+                update
               </button>
               <input type="file" accept="image/*" data-role="profile-input" hidden />
             </div>
           </div>
           <div class="profile-form__details">
             <div class="profile-form__field">
-              <span class="profile-form__email-label">이메일</span>
+              <span class="profile-form__email-label">e-mail</span>
               <div class="profile-form__email" data-role="email"></div>
             </div>
             <div class="profile-form__field">
               <input-box
                 class="profile-form__nickname"
-                label="닉네임"
+                label="nickname"
                 name="nickname"
                 type="text"
-                placeholder="닉네임을 입력하세요"
+                placeholder="Plz enter a nickname."
               ></input-box>
               <span class="profile-form__helper" data-helper="nickname"></span>
             </div>
             <div class="profile-form__actions">
-            <custom-button label="수정하기" disabled></custom-button>
-            <button type="button" class="profile-form__withdraw" data-role="withdraw">회원 탈퇴</button>
+            <custom-button label="update" disabled></custom-button>
+            <button type="button" class="profile-form__withdraw" data-role="withdraw">deactivate account</button>
           </div>
         </form>
-        <div class="profile-form__toast" data-role="toast" hidden>수정 완료</div>
+        <toast-message data-role="toast" variant="primary"></toast-message>
         <confirm-modal
           data-role="withdraw-modal"
-          title="회원탈퇴 하시겠습니까?"
-          description="작성된 게시글과 댓글은 삭제됩니다."
-          cancel-label="취소"
-          confirm-label="확인"
+          title="Do you want to delete your account?"
+          description="All your posts and comments will be deleted."
+          cancel-label="Cancel"
+          confirm-label="Confirm"
         ></confirm-modal>
           </div>
           

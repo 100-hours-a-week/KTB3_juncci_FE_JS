@@ -11,9 +11,9 @@ import {
 import { AUTH_CHANGE_EVENT, dispatchAuthChange } from '../core/events.js';
 
 const AUTH_MENU_ITEMS = [
-  { key: 'profile', label: '회원정보수정', route: '/account/profile' },
-  { key: 'password', label: '비밀번호수정', route: '/account/password' },
-  { key: 'logout', label: '로그아웃', action: 'logout' },
+  { key: 'profile', label: 'Edit Profile', route: '/account/profile' },
+  { key: 'password', label: 'Change Password', route: '/account/password' },
+  { key: 'logout', label: 'Log Out', action: 'logout' },
 ];
 
 export function Header() {
@@ -27,9 +27,13 @@ export function Header() {
             data-role="back-button"
             aria-label="뒤로 가기"
           >
-            &lt;
+            <svg dataSlot="icon" fill="currentColor" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path clipRule="evenodd" fillRule="evenodd" d="M14 8a.75.75 0 0 1-.75.75H4.56l3.22 3.22a.75.75 0 1 1-1.06 1.06l-4.5-4.5a.75.75 0 0 1 0-1.06l4.5-4.5a.75.75 0 0 1 1.06 1.06L4.56 7.25h8.69A.75.75 0 0 1 14 8Z" />
+            </svg>
           </button>
-          <h1>아무 말 대잔치</h1>
+          <h1>
+            <span class="logo--highlight">log</span>oRism
+          </h1>
           <div class="header__profile" data-role="profile">
             <button
               class="profile__trigger"

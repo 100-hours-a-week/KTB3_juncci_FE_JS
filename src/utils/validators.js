@@ -11,41 +11,41 @@ export function validatePassword(value) {
 }
 
 export function getEmailError(value) {
-  if (!value) return '*이메일을 입력해주세요.';
+  if (!value) return '*Plz enter your email.';
   if (!validateEmail(value)) {
-    return '*올바른 이메일 주소 형식을 입력해주세요. (예: example@example.com)';
+    return '*Plz enter a valid email address. (ex: example@example.com)';
   }
   return '';
 }
 
 export function getPasswordError(value) {
-  if (!value) return '*비밀번호를 입력해주세요.';
+  if (!value) return '*Plz enter your password.';
   if (!validatePassword(value)) {
-    return '*비밀번호는 8자 이상, 20자 이하이며, 대문자, 소문자, 숫자, 특수문자를 각각 최소 1개 포함해야 합니다.';
+    return '*Password must be 8–20 characters with uppercase, lowercase, a number, and a symbol.';
   }
   return '';
 }
 
 export function getConfirmPasswordError(password, confirm) {
-  if (!confirm) return '*비밀번호를 한번 더 입력해주세요.';
+  if (!confirm) return '*Plz re-enter your password.';
   if (password !== confirm) {
-    return '*비밀번호가 다릅니다.';
+    return '*Passwords do not match.';
   }
   return '';
 }
 
 export function getNicknameError(value) {
-  if (!value) return '*닉네임을 입력해주세요.';
+  if (!value) return '*Plz enter your nickname.';
   if (/\s/.test(value)) {
-    return '*띄어쓰기를 없애주세요.';
+    return '*Plz remove spaces.';
   }
   if (value.length > 10) {
-    return '*닉네임은 최대 10자 까지 작성 가능합니다.';
+    return '*Nickname can be up to 10 characters.';
   }
   return '';
 }
 
 export function getProfileImageError(value) {
-  if (!value) return '*프로필 사진을 추가해주세요.';
+  if (!value) return '*Plz add a profile photo.';
   return '';
 }

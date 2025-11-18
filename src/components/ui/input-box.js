@@ -19,18 +19,17 @@ class InputBox extends HTMLElement {
       input {
         width: 100%;
         height: 48px;
-        border: 1.5px solid #515251;
+        border: 1.5px solid #d8e7f0 ;
         border-radius: 4px;
         font-size: 16px;
         padding: 0 14px;
         box-sizing: border-box;
         outline: none;
         transition: border-color 0.2s;
-        background-color:transparent;
       }
 
       input:focus {
-        border-color: #7F6AEE;
+        border-color: #6292f9ff;
       }
 
       :host([error]) input {
@@ -39,7 +38,7 @@ class InputBox extends HTMLElement {
 
       :host([required]) label::after {
         content: '*';
-        color: #7F6AEE;
+        color: #d96060;
         margin-left: 4px;
       }
     `;

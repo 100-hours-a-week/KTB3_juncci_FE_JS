@@ -13,7 +13,7 @@ class CustomButton extends HTMLElement {
       button {
         width: 100%;
         height: 48px;
-        background-color: #ACA0EB;
+        background-color: #eb9999;
         color: #fff;
         border: none;
         border-radius: 4px;
@@ -24,7 +24,7 @@ class CustomButton extends HTMLElement {
       }
 
       button:enabled {
-        background-color: #7F6AEE;
+        background-color: #d96060;
       }
     `;
 

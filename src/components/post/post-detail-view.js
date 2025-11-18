@@ -99,8 +99,9 @@ export class PostDetailView extends HTMLElement {
           min-width: 78px;
           padding: 8px 4px;
           border-radius: 12px;
-          border: 1px solid #cfc2ff;
-          background-color: #F4F5F7;
+          border: 1px solid #ffffffff;
+          background-color: #d96060;
+          color: #ffffff;
           font-size: 14px;
           cursor: pointer;
           transition: 0.2s;
@@ -127,7 +128,7 @@ export class PostDetailView extends HTMLElement {
         }
 
         .post-detail__stats {
-          padding: 20px 70px;
+          padding: 10px 50px;
           display: flex;
           gap: 16px;
           margin-bottom: 40px;
@@ -136,21 +137,27 @@ export class PostDetailView extends HTMLElement {
 
         .stat-chip {
           flex: 1;
-          background: #dad9d9ff;
+          background: #ffffffff;
           border-radius: 18px;
           padding: 20px 16px;
           text-align: center;
+          border-radius: 12px;
+          border: 2px solid #d8e7f0;
+          font-size: 12px;
         }
 
         .stat-chip--like {
           border: none;
           cursor: pointer;
-          background: #d9d9d9;
+          background: #ffffffff;
           transition: 0.2s;
+          border-radius: 12px;
+          border: 2px solid #d8e7f0;
+          font-size: 12px;
         }
 
         .stat-chip--like.is-liked {
-          background: #aca0eb;
+          background: #d8e7f0;
           color: #fff;
         }
       </style>
@@ -174,8 +181,8 @@ export class PostDetailView extends HTMLElement {
                 </div>
               </div>
               <div class="post-detail__actions">
-                <button class="action-btn" data-role="edit" type="button">수정</button>
-                <button class="action-btn" data-role="delete" type="button">삭제</button>
+                <button class="action-btn" data-role="edit" type="button">edit</button>
+                <button class="action-btn" data-role="delete" type="button">del</button>
               </div>
             </header>
 
@@ -187,26 +194,26 @@ export class PostDetailView extends HTMLElement {
 
             <div class="post-detail__stats">
               <button class="stat-chip stat-chip--like" data-role="like-button" aria-pressed="false">
-                <strong class="stat-chip__value" data-role="like-count">0</strong>
-                <span class="stat-chip__label">좋아요수</span>
+                <strong class="stat-chip__value" data-role="like-count">0</strong><br />
+                <span class="stat-chip__label">likes</span>
               </button>
               <div class="stat-chip">
-                <strong class="stat-chip__value" data-role="view-count">0</strong>
-                <span class="stat-chip__label">조회수</span>
+                <strong class="stat-chip__value" data-role="view-count">0</strong><br />
+                <span class="stat-chip__label">views</span>
               </div>
               <div class="stat-chip">
-                <strong class="stat-chip__value" data-role="comment-count">0</strong>
-                <span class="stat-chip__label">댓글</span>
+                <strong class="stat-chip__value" data-role="comment-count">0</strong><br />
+                <span class="stat-chip__label">comments</span>
               </div>
             </div>
 
             <post-comment-section data-role="comment-section"></post-comment-section>
             <confirm-modal
               data-role="post-delete-modal"
-              title="게시글을 삭제할까요?"
-              description="삭제된 게시글은 복구할 수 없습니다."
-              confirm-label="삭제"
-              cancel-label="취소"
+              title="Delete this post?"
+              description="Deleted posts cannot be recovered."
+              confirm-label="Delete"
+              cancel-label="Cancel"
             ></confirm-modal>
           </div>
         </div>
@@ -495,12 +502,17 @@ export class PostDetailView extends HTMLElement {
     const canModify = Boolean(this.canModifyPost) && !this.isDeletingPost;
     if (this.editButton) {
       this.editButton.disabled = !canModify;
-      this.editButton.title = canModify ? '게시글을 수정합니다.' : '수정 권한이 없습니다.';
+      this.editButton.title = canModify
+        ? 'Edit this post.'
+        : 'You do not have permission to edit this.';
+
     }
     if (this.deleteButton) {
       this.deleteButton.disabled = !canModify;
-      this.deleteButton.textContent = this.isDeletingPost ? '삭제 중...' : '삭제';
-      this.deleteButton.title = canModify ? '게시글을 삭제합니다.' : '삭제 권한이 없습니다.';
+      this.deleteButton.textContent = this.isDeletingPost ? 'loading' : 'del';
+      this.deleteButton.title = canModify
+        ? 'Delete this post.'
+        : 'You do not have permission to delete this.';
     }
     this.updateLikeButtonState(this.isLikingPost);
   }

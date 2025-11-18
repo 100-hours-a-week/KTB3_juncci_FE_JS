@@ -1,181 +1,245 @@
-import '../ui/input-box.js';
-import '../ui/button.js';
-import { html } from '../../core/html.js';
-import { routeChange } from '../../core/router.js';
+import { h, createElement, updateElement } from '../../core/vdom.js';
 import { store } from '../../core/store.js';
-import { dispatchAuthChange } from '../../core/events.js';
-import { getEmailError, getPasswordError } from '../../utils/validators.js';
 import { login } from '../../api/users.js';
-import { setStoredToken, setStoredUserId } from '../../utils/auth.js';
+import { routeChange } from '../../core/router.js';
+import { getEmailError, getPasswordError } from '../../utils/validators.js';
 
-// 로그인 폼 컴포넌트
 class LoginForm extends HTMLElement {
   constructor() {
     super();
-    this.attachShadow({ mode: 'open' });
 
-    const style = html`
-      <style>
-        :host {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          width: 100%;
-        }
-
-        h2 {
-          font-size: 32px;
-          font-weight: 700;
-          margin-top: 180px;
-          color: #222;
-          text-align: center;
-        }
-
-        .login-form__body {
-          width: 390px;
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          margin-top: 40px;
-        }
-
-        .field {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .helper-text {
-          font-size: 12px;
-          color: red;
-          min-height: 14px;
-        }
-
-        .signup-link {
-          text-align: center;
-          font-size: 12px;
-          color: #515251;
-        }
-
-        .signup-link button {
-          border: none;
-          background: none;
-          color: #a3a3a3ff;
-          font-weight: 600;
-          cursor: pointer;
-        }
-      </style>
+    // 스타일은 고정
+    const style = document.createElement('style');
+    style.textContent = `
+      :host {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      h2 {
+        font-size: 80px;
+        margin-top: 120px;
+        margin-bottom: 0;
+        color: #222;
+        text-align: center;
+        font-family: 'Nanum Pen Script', cursive;
+      }
+      .login-form__body {
+        width: 390px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 40px;
+        background-color:#ffffff;
+        padding:20px;
+        border-radius: 12px;
+        border: 1px solid #d8e7f0;
+      }
+      .field {
+        display: flex;
+        flex-direction: column;
+      }
+      label {
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+      input {
+        width: 100%;
+        height: 48px;
+        border: 1.5px solid #d8e7f0 ;
+        border-radius: 4px;
+        font-size: 16px;
+        padding: 0 14px;
+        box-sizing: border-box;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      input:focus {
+        border-color: #6292f9ff;
+      }
+      button.submit {
+        width: 100%;
+        height: 48px;
+        background-color: #d8e7f0;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      button.submit:enabled {
+        background-color: #d96060;
+      }
+      .helper-text {
+        font-size: 12px;
+        color: red;
+        min-height: 14px;
+      }
+      .signup-link {
+        text-align: center;
+        font-size: 12px;
+        color: #515251;
+      }
+      .signup-link button {
+        border: none;
+        background: none;
+        color: #6f6f6fff;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: underline;
+      }
     `;
+    this.append(style);
 
-    const wrapper = html`
-      <form>
-        <h2>로그인</h2>
-        <div class="login-form__body">
-          <div class="field">
-            <input-box label="이메일" type="email" placeholder="이메일을 입력하세요"></input-box>
-          </div>
-          <div class="field">
-            <input-box label="비밀번호" type="password" placeholder="비밀번호를 입력하세요"></input-box>
-            <p class="helper-text" id="helper-text"></p>
-          </div>
-          <custom-button label="로그인" disabled></custom-button>
-          <p class="signup-link">
-            <button type="button" id="signup-button">회원가입</button>
-          </p>
-        </div>
-      </form>
-    `;
- // Shadow DOM에 스타일 및 구조 삽입
-    this.shadowRoot.append(style, wrapper);
-  }
+    // VDOM이 들어갈 컨테이너
+    this.container = document.createElement('div');
+    this.append(this.container);
 
-  // 컴포넌트가 DOM에 연결될 때 실행
-  connectedCallback() {
-    // 요소 참조
-    const button = this.shadowRoot.querySelector('custom-button');
-    const helperText = this.shadowRoot.querySelector('#helper-text');
-    const signupButton = this.shadowRoot.querySelector('#signup-button');
     this.loginFailed = false;
+    this.vdom = null; // 이전 VDOM 저장용
 
-      // 유효성 검증 및 에러 메시지 렌더링
-    const renderValidation = (state) => {
-      const emailValue = state.email.trim();
-      const passwordValue = state.password;
-
-      const emailError = getEmailError(emailValue);
-      const passwordError = getPasswordError(passwordValue);
-
-      // 로그인 실패 시 메시지 표시
-      let message = emailError || passwordError;
-
-      if (!message && this.loginFailed) {
-        message = '*아이디 또는 비밀번호를 확인해주세요';
-      }
-
-      helperText.textContent = message;
-
-      button.disabled = Boolean(message);
-    };
-
-
-    // 상태 변경 시 자동 리렌더링 구독
-    const unsubscribe = store.subscribe(renderValidation);
-    this.unsubscribe = unsubscribe;
-    renderValidation(store.getState());
-
-    // 회원가입 페이지로 이동
-    signupButton.addEventListener('click', () => {
-      routeChange('/signup');
-    });
-
-    // input-box 값 변경 이벤트 처리
-    this.shadowRoot.addEventListener('input-change', (e) => {
-      const { name, value } = e.detail;
-      this.loginFailed = false;
-      store.setState({ [name]: value });
-    });
-
-    // 로그인 폼 제출 처리
-    const form = this.shadowRoot.querySelector('form');
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const { email, password } = store.getState();
-      const payload = { email: email.trim(), password };
-      try {
-        const result = await login(payload);
-        const token = result.access_token;
-        if (token) {
-          setStoredToken(token);
-        } else {
-          setStoredToken('');
-        }
-        const userId = result?.userId ?? result?.user_id ?? null;
-        if (userId !== null) {
-          setStoredUserId(userId);
-        } else {
-          setStoredUserId('');
-        }
-        dispatchAuthChange({ status: 'login' });
-        this.loginFailed = false;
-        renderValidation(store.getState());
-        console.log('로그인 성공:', token);
-        routeChange('/post');
-      } catch (err) {
-        this.loginFailed = true;
-        renderValidation(store.getState());
-        console.error('[Login Error]', err);
-      }
-    });
+    this.render();
   }
 
-    // 컴포넌트가 DOM에서 제거될 때 실행
-  disconnectedCallback() {
-    if (this.unsubscribe) {
-      this.unsubscribe();
-      this.unsubscribe = null;
+  //DOM의 형태를 본따 만든 객체 덩어리
+  template(state, loginFailed) {
+    const email = state.email || '';
+    const password = state.password || '';
+
+    const message =
+      getEmailError(email.trim()) ||
+      getPasswordError(password) ||
+      (loginFailed ? '*Please check your e-mail or password.' : '');
+
+    return h(
+      'form',
+      {
+        onSubmit: (e) => this.onSubmit(e),
+      },
+      h('h2', null, 'Log in'),
+      h(
+        'div',
+        { className: 'login-form__body' },
+
+        // email 덩어리
+        h(
+          'div',
+          { className: 'field' },
+          h('label', null, 'e-mail'),
+          h('input', {
+            type: 'email',
+            name: 'email',
+            value: state.email,
+            placeholder: 'Please enter your email.',
+            value: email,
+            onInput: (e) => this.onInput(e),
+          })
+        ),
+
+        // password 덩어리
+        h(
+          'div',
+          { className: 'field' },
+          h('label', null, 'password'),
+          h('input', {
+            type: 'password',
+            name: 'password',
+            value: state.password,
+            placeholder: 'Please enter your password.',
+            value: password,
+            onInput: (e) => this.onInput(e),
+          }),
+          h('p', { className: 'helper-text' }, message)
+        ),
+
+        // submit button 덩어리
+        h(
+          'button',
+          {
+            type: 'submit',
+            className: 'submit',
+            disabled: Boolean(message),
+          },
+          'submit'
+        ),
+
+        // sign up 버튼
+        h(
+          'p',
+          { className: 'signup-link' },
+          h(
+            'button',
+            {
+              type: 'button',
+              onClick: () => routeChange('/signup'),
+            },
+            'sign up'
+          )
+        )
+      )
+    );
+  }
+
+  render() {
+  console.log("%c==========[VDOM] render() 호출 시작==========", "color: black; font-weight: bold");
+
+  const state = store.getState();
+  const newVdom = this.template(state, this.loginFailed);
+
+
+
+  // 첫 렌더 시작
+  if (!this.vdom) {
+    const dom = createElement(newVdom);
+    this.container.appendChild(dom);
+    this.vdom = newVdom;
+
+
+
+    return;
+  }
+
+
+
+  // diff + patch 역할 수행
+  updateElement(this.container, newVdom, this.vdom);
+
+
+
+  // VDOM 갱신
+  this.vdom = newVdom;
+}
+
+
+  onInput(e) {
+    const { name, value } = e.target;
+    store.setState({ [name]: value });
+    this.loginFailed = false;
+    this.render();
+  }
+
+  async onSubmit(e) {
+    e.preventDefault();
+    const { email, password } = store.getState();
+
+    try {
+      await login({ email: email.trim(), password });
+      this.loginFailed = false;
+      routeChange('/post');
+    } catch (err) {
+      console.error('[Login Error]', err);
+      this.loginFailed = true;
+      this.render();
     }
   }
 }
 
-// 커스텀 엘리먼트 등록
 customElements.define('login-form', LoginForm);

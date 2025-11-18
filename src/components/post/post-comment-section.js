@@ -77,7 +77,6 @@ export class PostCommentSection extends HTMLElement {
           margin-top: 12px;
           font-size: 13px;
           min-height: 18px;
-          color: #7f6aee;
         }
 
         .comment-form__helper.is-error {
@@ -96,7 +95,7 @@ export class PostCommentSection extends HTMLElement {
           padding: 10px 30px;
           border: none;
           border-radius: 16px;
-          background: #d6ccff;
+          background: #eb9999;
           color: #fff;
           font-weight: 600;
           font-size: 12px;
@@ -105,7 +104,7 @@ export class PostCommentSection extends HTMLElement {
         }
 
         .comment-submit:not(:disabled) {
-          background: #7f6aee;
+          background: #d96060;
           cursor: pointer;
         }
 
@@ -130,20 +129,23 @@ export class PostCommentSection extends HTMLElement {
     const layout = html`
       <section class="comment-section">
         <form class="comment-form">
-          <textarea placeholder="댓글을 남겨주세요!" data-role="input"></textarea>
+          <textarea placeholder="comments!" data-role="input"></textarea>
           <p class="comment-form__helper" data-role="form-message" aria-live="polite"></p>
           <div class="comment-form__actions">
-            <button class="comment-submit" type="submit" disabled>댓글 등록</button>
+            <button class="comment-submit" type="submit" disabled>submit</button>
           </div>
         </form>
         <ul class="comment-list" data-role="list"></ul>
-        <div class="comments-empty" data-role="empty" hidden>댓글을 불러오는 중입니다.</div>
+        <div class="comments-empty" data-role="empty" hidden>
+          Loading comments...
+        </div>
+
         <confirm-modal
           data-role="delete-modal"
-          title="댓글을 삭제할까요?"
-          description="삭제된 댓글은 복구할 수 없습니다."
-          confirm-label="삭제"
-          cancel-label="취소"
+          title="Delete this comment?"
+          description="Deleted comments cannot be recovered."
+          confirm-label="Delete"
+          cancel-label="Cancel"
         ></confirm-modal>
       </section>
     `;
@@ -471,9 +473,9 @@ export class PostCommentSection extends HTMLElement {
       this.mergeAndRender();
       if (this.textarea) this.textarea.value = '';
       this.updateSubmitButton(false);
-      this.showFormMessage('댓글이 등록되었습니다.');
-    } catch (error) {
-      this.showFormMessage(error.message || '댓글을 등록하지 못했습니다.', true);
+      this.showFormMessage('Comment posted successfully.');
+        } catch (error) {
+          this.showFormMessage(error.message || 'Failed to post the comment.', true);
     } finally {
       this.setSubmitting(false);
     }
@@ -555,10 +557,10 @@ export class PostCommentSection extends HTMLElement {
         this.removeServerComment(commentId);
       }
       this.mergeAndRender();
-      this.showFormMessage('댓글이 삭제되었습니다.');
-    } catch (error) {
-      this.showFormMessage(error.message || '댓글을 삭제하지 못했습니다.', true);
-    } finally {
+      this.showFormMessage('Comment deleted.');
+      } catch (error) {
+        this.showFormMessage(error.message || 'Failed to delete the comment.', true);
+          } finally {
       if (targetItem) targetItem.deleting = false;
     }
   }

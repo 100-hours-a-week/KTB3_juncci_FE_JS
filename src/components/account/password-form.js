@@ -1,5 +1,6 @@
 import '../ui/input-box.js';
 import '../ui/button.js';
+import '../ui/toast-message.js';
 import {
   validatePassword,
   getPasswordError,
@@ -12,6 +13,8 @@ import {
 } from '../../utils/auth.js';
 import { routeChange } from '../../core/router.js';
 
+
+const SUCCESS_REDIRECT_DELAY_MS = 1000;
 // 비밀번호 변경 폼 컴포넌트
 class PasswordForm extends HTMLElement {
   constructor() {
@@ -67,31 +70,26 @@ class PasswordForm extends HTMLElement {
     this.shadowRoot.removeEventListener('input-change', this.handleInputChange);
     this.shadowRoot.removeEventListener('input-blur', this.handleInputBlur);
     this.form?.removeEventListener('submit', this.handleSubmit);
-    if (this.toastTimer) {
-      clearTimeout(this.toastTimer);
-    }
   }
 
   // 폼 제출 처리
   handleSubmit = async (event) => {
     event.preventDefault();
     if (!this.isFormValid()) return;
+      try {
+        const userId = getStoredUserId();
+        const { currentPassword, newPassword } = this.state;
 
-    try {
-      const userId = getStoredUserId();
-      const { currentPassword, newPassword } = this.state;
+        await updatePassword(userId, { currentPassword, newPassword });
+        this.showToast('Your password has been successfully changed.');
 
-      await updatePassword(userId, { currentPassword, newPassword });
-      this.showToast('비밀번호가 성공적으로 변경되었습니다.');
-
-      // 1초 후 로그인 페이지로 이동 (약간 토스트메시지를 보이기 위한 의도적인...지연)
-      setTimeout(() => {
-        routeChange('/login');
-      }, 1000); 
-    } catch (error) {
-      this.showToast(error.message || '비밀번호 변경에 실패했습니다.')
-
-    }
+        // Show toast briefly, then redirect to login page
+        setTimeout(() => {
+          routeChange('/login');
+        }, SUCCESS_REDIRECT_DELAY_MS);
+      } catch (error) {
+        this.showToast(error.message || 'Failed to change the password.');
+      }
   };
 
   // 폼 전체 유효성 검사
@@ -129,15 +127,7 @@ class PasswordForm extends HTMLElement {
 
   // 토스트 메시지 표시
   showToast(message) {
-    if (!this.toast) return;
-    this.toast.textContent = message;
-    this.toast.hidden = false;
-    if (this.toastTimer) {
-      clearTimeout(this.toastTimer);
-    }
-    this.toastTimer = setTimeout(() => {
-      this.toast.hidden = true;
-    }, 2000);
+    this.toast?.show(message);
   }
 
   // UI 렌더링
@@ -159,11 +149,13 @@ class PasswordForm extends HTMLElement {
         }
 
         .password-form__title {
-          font-size: 32px;
+          font-size: 70px;
+          font-weight: 00;
+          margin-top: 120px;
           color: #111;
-          margin-bottom: 12px;
-          font-weight: 700;
+          margin: 0;
           text-align: center;
+          font-family: 'Nanum Pen Script', cursive;
         }
 
         .password-form__card {
@@ -190,52 +182,42 @@ class PasswordForm extends HTMLElement {
           width: 100%;
         }
 
-        .password-form__toast {
-          position: fixed;
-          bottom: 32px;
-          left: 50%;
-          transform: translateX(-50%);
-          padding: 14px 20px;
-          border-radius: 999px;
-          background: rgba(0, 0, 0, 0.8);
-          color: #fff;
-          font-size: 14px;
-          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-        }
       </style>
     `;
 
     const template = html`
       <div>
         <form class="password-form" data-role="password-form">
-          <h2 class="password-form__title">비밀번호 수정</h2>
+          <h2 class="password-form__title">Update Password</h2>
           <div class="password-form__card">
             <div class="password-form__field" data-field="newPassword">
               <input-box
-                label="기존 비밀번호"
+                label="Current Password"
                 type="password"
-                placeholder="비밀번호를 입력하세요"
+                placeholder="Enter your password"
                 required
                 name="currentPassword"
               ></input-box>
               <p class="password-form__helper-text" data-helper="currentPassword"></p>
-            </div>
-            <div class="password-form__field" data-field="newPassword">
-              <input-box
-                label="새 비밀번호"
-                type="password"
-                placeholder="비밀번호를 입력하세요"
-                required
-                name="newPassword"
-              ></input-box>
+              </div>
+
+              <div class="password-form__field" data-field="newPassword">
+                <input-box
+                  label="New Password"
+                  type="password"
+                  placeholder="Enter a new password"
+                  required
+                  name="newPassword"
+                ></input-box>
+
               <p class="password-form__helper-text" data-helper="newPassword"></p>
             </div>
           </div>
           <div class="password-form__actions">
-            <custom-button label="수정하기" data-role="submit-button" disabled></custom-button>
+            <custom-button label="update" data-role="submit-button" disabled></custom-button>
           </div>
         </form>
-        <div class="password-form__toast" data-role="toast" hidden>수정 완료</div>
+        <toast-message data-role="toast"></toast-message>
       </div>
     `;
 

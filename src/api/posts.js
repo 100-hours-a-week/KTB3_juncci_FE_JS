@@ -1,6 +1,7 @@
 import { buildAuthHeaders } from '../utils/auth.js';
+import { BASE_URL } from '../core/config.js';
 
-const BASE_URL = 'http://localhost:8080';
+
 
 //[GET] 게시글 조회
 export async function fetchPosts({ page = 1, size = 10, sort = 'desc' } = {}) {
@@ -84,11 +85,11 @@ export async function createPost({ title, content, images = [] } = {}) {
   try {
     const response = await fetch(`${BASE_URL}/posts`, {
       method: 'POST',
-      headers: buildAuthHeaders(),
+      headers: buildAuthHeaders({ includeContentType: true }),
       body: JSON.stringify({
         title: title.trim(),
         content: content.trim(),
-        images,
+        ...(Array.isArray(images) && images.length ? { images } : {}),
       }),
     });
 
@@ -126,7 +127,7 @@ export async function updatePost(postId, payload = {}) {
   try {
     const response = await fetch(`${BASE_URL}/posts/${postId}`, {
       method: 'PATCH',
-      headers: buildAuthHeaders(),
+      headers: buildAuthHeaders({ includeContentType: true }),
       body: JSON.stringify({
         title: title.trim(),
         content: content.trim(),

@@ -1,7 +1,57 @@
-import { buildAuthHeaders } from '../utils/auth.js';
+import {
+  buildAuthHeaders,
+  setStoredToken,
+  setStoredUserId,
+} from '../utils/auth.js';
+import { BASE_URL } from '../core/config.js';
+import { dispatchAuthChange } from '../core/events.js';
+
+const hasValue = (value) =>
+  value !== undefined && value !== null && value !== '';
+
+const extractAuthToken = (payload, response) => {
+  const candidates = [
+    payload?.access_token,
+    payload?.accessToken,
+    payload?.token,
+    payload?.jwt,
+    payload?.authorization,
+    payload?.Authorization,
+    payload?.data?.access_token,
+    payload?.data?.token,
+  ];
+
+  for (const token of candidates) {
+    if (hasValue(token)) return token;
+  }
+
+  const headerToken =
+    response?.headers?.get('authorization') ||
+    response?.headers?.get('Authorization');
+  return headerToken || null;
+};
+
+const extractUserId = (payload) => {
+  const candidates = [
+    payload?.user_id,
+    payload?.userId,
+    payload?.id,
+    payload?.user?.id,
+    payload?.user?.userId,
+    payload?.data?.user_id,
+    payload?.data?.userId,
+    payload?.data?.id,
+  ];
+
+  for (const userId of candidates) {
+    if (hasValue(userId)) return userId;
+  }
+
+  return null;
+};
 
 
-const BASE_URL = 'http://localhost:8080';
+
 
 //[POST]- 회원가입
 export async function signup({ email, password, nickname, profile_image }) {
@@ -38,13 +88,34 @@ export async function login({ email, password }) {
       body: JSON.stringify({ email, password }),
     });
 
-    const result = await response.json();
+    const raw = await response.text();
+    const result = raw ? JSON.parse(raw) : {};
 
     if (!response.ok) {
-      throw new Error(result.error?.detail || '로그인 실패');
+      const message =
+        result.error?.detail ||
+        result.error?.message ||
+        result.message ||
+        '로그인 실패';
+      throw new Error(message);
     }
 
-    return result.data;
+    const payload = result.data || result;
+    const token = extractAuthToken(payload, response);
+    const userId = extractUserId(payload);
+
+    if (token) {
+      setStoredToken(token);
+    }
+    if (hasValue(userId)) {
+      setStoredUserId(userId);
+    }
+
+    if (token || hasValue(userId)) {
+      dispatchAuthChange({ status: 'login', token: Boolean(token), userId });
+    }
+
+    return { ...payload, token, userId };
   } catch (error) {
     console.error('[API ERROR] login:', error.message);
     throw error;
@@ -191,4 +262,3 @@ export async function deleteUser(userId) {
     throw error;
   }
 }
-

@@ -168,7 +168,7 @@ class ConfirmModal extends HTMLElement {
         }
 
         .modal__button--primary {
-          background: #aca0eb;
+          background: #eb9999;
           color: #000000ff;
           font-weight:400;
         }

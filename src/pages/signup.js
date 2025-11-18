@@ -7,8 +7,6 @@ export function SignupPage() {
     <section class="signup-page">
       <style>
         .signup-page {
-          padding: 60px 0 120px;
-          background: #f4f5f7;
           min-height: 100vh;
         }
       </style>

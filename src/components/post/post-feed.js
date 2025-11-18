@@ -6,6 +6,8 @@ import './post-card.js';
 // 한 페이지당 불러올 게시글 수
 const DEFAULT_PAGE_SIZE = 10;
 
+//
+const INTERSECTION_OBSERVER_ROOT_MARGIN = 200;
 // 게시글 목록(피드) 컴포넌트
 export class PostFeed extends HTMLElement {
   constructor() {
@@ -41,22 +43,24 @@ export class PostFeed extends HTMLElement {
         .post-page__title {
           text-align: center;
           margin-bottom: 12px;
-          font-size: 24px;
+          font-size: 30px;
           font-weight: 200;
           color: #222;
           line-height: 1.4;
+          font-family: 'Nanum Pen Script', cursive;
         }
 
         .post-page__title strong {
-          color: #000;
-          font-weight: 700;
+          color:#d96060;
+          font-weight: 800;
+          font-family: 'Nanum Pen Script', cursive;
         }
 
         .post-page__write-btn {
           padding: 12px 24px;
           border-radius: 999px;
           border: none;
-          background-color: #aca0eb;
+          background-color: #eb9999;
           color: #fff;
           font-weight: 600;
           cursor: pointer;
@@ -65,7 +69,7 @@ export class PostFeed extends HTMLElement {
         }
 
         .post-page__write-btn:hover {
-          background-color: #7f6aee;
+          background-color: #d96060;
         }
 
         .post-page__list {
@@ -95,10 +99,10 @@ export class PostFeed extends HTMLElement {
       <div class="post-page__content">
         <div class="post-page__header">
           <p class="post-page__title">
-            안녕하세요,<br />
-            아무 말 대잔치 <strong>게시판</strong> 입니다.
+            Developers leave.<br />
+            Their <strong>code</strong> remains .
           </p>
-          <button class="post-page__write-btn" type="button">게시글 작성</button>
+          <button class="post-page__write-btn" type="button">New Post</button>
         </div>
 
         <div class="post-page__list" id="post-list"></div>
@@ -224,7 +228,7 @@ export class PostFeed extends HTMLElement {
     if (!sentinel) return;
 
     this.observer = new IntersectionObserver(this.handleIntersect, {
-      rootMargin: '200px', // 200px 앞에서 미리 로드
+       rootMargin: `${INTERSECTION_OBSERVER_ROOT_MARGIN}px`,// 200px 앞에서 미리 로드
     });
 
     this.observer.observe(sentinel);
@@ -251,7 +255,7 @@ export class PostFeed extends HTMLElement {
 
     // 로딩 상태 활성화
     this.isLoading = true;
-    this.updateStatus('게시글을 불러오는 중입니다...');
+    this.updateStatus('Loading...');
     console.time(`loadPosts(page=${this.page})`); // 성능 측정
 
     try {
@@ -271,7 +275,7 @@ export class PostFeed extends HTMLElement {
 
       // 게시글이 없는 경우
       if (!sortedPosts.length && this.page === 1) {
-        this.updateStatus('게시글이 없습니다.');
+        this.updateStatus('No Post');
         this.hasMore = false;
         return;
       }

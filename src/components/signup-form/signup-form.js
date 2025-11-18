@@ -61,11 +61,13 @@ class SignupForm extends HTMLElement {
         }
 
         h2 {
-          font-size: 32px;
-          font-weight: 700;
-          text-align: center;
-          margin: 0;
+          font-size: 80px;
+          font-weight: 00;
+          margin-top: 120px;
+          margin-bottom: 0;
           color: #222;
+          text-align: center;
+          font-family: 'Nanum Pen Script', cursive;
         }
 
         .profile-area {
@@ -75,6 +77,11 @@ class SignupForm extends HTMLElement {
           align-items: center;
           gap: 16px;
           width: 100%;
+          margin-top: 40px;
+          background-color:#ffffff;
+          padding:20px;
+          border-radius: 12px;
+          border: 1px solid #d8e7f0;
         }
 
         .profile-area label {
@@ -85,10 +92,10 @@ class SignupForm extends HTMLElement {
         }
 
         .profile-circle {
-          width: 160px;
-          height: 160px;
+          width: 120px;
+          height: 120px;
           border-radius: 50%;
-          background: #d9d9d9;
+          background: #e3e3e3ff;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -106,10 +113,15 @@ class SignupForm extends HTMLElement {
         }
 
         form {
+          margin-top:10px;
           padding: 32px 28px 40px;
           display: flex;
           flex-direction: column;
           width: 100%;
+          background-color:#ffffff;
+          padding:20px;
+          border-radius: 12px;
+          border: 1px solid #d8e7f0;
         }
 
         .field {
@@ -142,6 +154,7 @@ class SignupForm extends HTMLElement {
 
         .secondary-action {
           text-align: center;
+          color: #515251;
         }
 
         .secondary-action button {
@@ -150,6 +163,8 @@ class SignupForm extends HTMLElement {
           color: #A3A3A3;
           font-weight: 600;
           cursor: pointer;
+          margin-top:20px;
+          text-decoration: underline;
         }
 
         input[type='file'] {
@@ -160,9 +175,9 @@ class SignupForm extends HTMLElement {
 
     const layout = html`
       <section class="signup-wrapper">
-        <h2>회원가입</h2>
+        <h2>sign up</h2>
         <section class="profile-area">
-          <label>프로필 사진</label>
+          <label>Avatar</label>
           <div class="profile-circle" data-role="profile-circle" aria-label="프로필 이미지 업로드" role="button">
             <span data-role="profile-placeholder">+</span>
             <img data-role="profile-preview" alt="" hidden />
@@ -171,9 +186,7 @@ class SignupForm extends HTMLElement {
           <p class="helper-text profile-helper" data-helper="profileImage"></p>
         </section>
         <form data-role="signup-form"></form>
-        <div class="secondary-action">
-          <button type="button" data-role="login-link">로그인하러 가기</button>
-        </div>
+        
       </section>
     `;
 
@@ -198,16 +211,32 @@ class SignupForm extends HTMLElement {
     if (!this.form) return;
 
     const fieldConfigs = [
-      { label: '이메일', name: 'email', type: 'email', placeholder: '이메일을 입력하세요' },
-      { label: '비밀번호', name: 'password', type: 'password', placeholder: '비밀번호를 입력하세요' },
-      {
-        label: '비밀번호 확인',
-        name: 'confirm',
-        type: 'password',
-        placeholder: '비밀번호를 한번 더 입력하세요',
-      },
-      { label: '닉네임', name: 'nickname', type: 'text', placeholder: '닉네임을 입력하세요' },
-    ];
+  { 
+    label: 'Email', 
+    name: 'email', 
+    type: 'email', 
+    placeholder: 'Please enter your email' 
+  },
+  { 
+    label: 'Password', 
+    name: 'password', 
+    type: 'password', 
+    placeholder: 'Please enter your password' 
+  },
+  {
+    label: 'Confirm Password',
+    name: 'confirm',
+    type: 'password',
+    placeholder: 'Please re-enter your password',
+  },
+  { 
+    label: 'Nickname', 
+    name: 'nickname', 
+    type: 'text', 
+    placeholder: 'Please enter your nickname' 
+  },
+];
+
 
     fieldConfigs.forEach((config) => {
       const fieldElement = this.renderField(config);
@@ -218,7 +247,10 @@ class SignupForm extends HTMLElement {
 
     const submitWrapper = html`
       <div class="form-submit">
-        <custom-button type="submit" label="회원가입" disabled></custom-button>
+        <custom-button type="submit" label="submit" disabled></custom-button>
+        <div class="secondary-action">
+          <button type="button" data-role="login-link">log in</button>
+        </div>
       </div>
     `;
 

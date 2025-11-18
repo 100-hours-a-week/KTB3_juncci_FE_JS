@@ -1,6 +1,6 @@
 import { buildAuthHeaders } from '../utils/auth.js';
+import { BASE_URL } from '../core/config.js';
 
-const BASE_URL = 'http://localhost:8080';
 
 //[GET] - 댓글 불러오기
 export async function fetchComments(postId) {
@@ -76,29 +76,27 @@ export async function createComment(postId, content) {
 //[DELET] - 댓글 삭제
 export async function deleteComment(postId, commentId) {
   if (!postId || !commentId) {
-    throw new Error('게시글 ID와 댓글 ID가 필요합니다.');
+    throw new Error('Post ID and Comment ID are required.');
   }
 
   try {
-    const response = await fetch(`${BASE_URL}/posts/${postId}/comments/${commentId}`, {
-      method: 'DELETE',
-      headers: buildAuthHeaders({ includeContentType: true }),
-    });
+    const response = await fetch(
+      `${BASE_URL}/posts/${postId}/comments/${commentId}`,
+      {
+        method: 'DELETE',
+        headers: buildAuthHeaders({ includeContentType: true }),
+      }
+    );
 
-    const result = await response.json();
-
+  
     if (!response.ok) {
-      const message =
-        result.error?.detail ||
-        result.error?.message ||
-        result.message ||
-        '댓글을 삭제하지 못했습니다.';
-      throw new Error(message);
+      throw new Error('Failed to delete the comment.');
     }
 
-    return true;
+    return true; 
   } catch (error) {
     console.error('[API ERROR] deleteComment:', error.message);
     throw error;
   }
 }
+

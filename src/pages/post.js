@@ -7,7 +7,6 @@ export function PostPage() {
     <section class="post-page">
       <style>
         .post-page {
-          background-color: #f4f5f7;
           min-height: 100vh;
           display: flex;
           flex-direction: column;

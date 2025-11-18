@@ -160,14 +160,14 @@ export class PostCard extends HTMLElement {
     // 제목, 작성자, 날짜, 통계 정보 처리
     const title = this._post.title || '제목 없음';
     const displayTitle = title.length > 26 ? `${title.slice(0, 26)}…` : title;
-    const authorName = this._post.author_name || this._post.author || '익명';
+    const authorName = this._post.author_name || this._post.author || 'Guest';
 
     // 데이터 화면에 반영
     this.titleEl.textContent = displayTitle;
     this.titleEl.title = title;
-    this.likeEl.textContent = `좋아요 ${formatCount(this._post.like_count)}`;
-    this.commentEl.textContent = `댓글 ${formatCount(this._post.comment_count)}`;
-    this.viewEl.textContent = `조회수 ${formatCount(this._post.view_count)}`;
+    this.likeEl.textContent = `Likes ${formatCount(this._post.like_count)}`;
+    this.commentEl.textContent = `Comments ${formatCount(this._post.comment_count)}`;
+    this.viewEl.textContent = `Views ${formatCount(this._post.view_count)}`;
     this.timeEl.textContent = formatDateTime(this._post.created_at);
     this.authorEl.textContent = authorName;
     this.dividerEl.style.display = 'block';

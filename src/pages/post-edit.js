@@ -7,7 +7,6 @@ export function PostEditPage({ postId }) {
     <section class="post-editor-page">
       <style>
         .post-editor-page {
-          background: #F4F5F7;
           min-height: 100vh;
         }
       </style>

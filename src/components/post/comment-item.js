@@ -112,8 +112,23 @@ export class CommentItem extends HTMLElement {
             </div>
           </div>
           <div class="comment-item__actions">
-            <button type="button" data-role="edit" disabled title="댓글 수정 기능은 준비 중입니다.">수정</button>
-            <button type="button" data-role="delete" disabled title="댓글 삭제 기능은 준비 중입니다.">삭제</button>
+          <button
+              type="button"
+              data-role="edit"
+              disabled
+              title="Comment editing is currently under development."
+            >
+              edit
+            </button>
+
+            <button
+              type="button"
+              data-role="delete"
+              disabled
+              title="Comment deletion is currently under development."
+            >
+              del
+            </button>
           </div>
         </div>
         <p class="comment-item__body" data-role="body"></p>
@@ -214,7 +229,7 @@ export class CommentItem extends HTMLElement {
 
     // 버튼 활성화 및 텍스트 변경
     this.deleteButton.disabled = !canDelete || isDeleting;
-    this.deleteButton.textContent = isDeleting ? '삭제 중...' : '삭제';
+    this.deleteButton.textContent = isDeleting ? '삭제 중...' : 'del';
     this.deleteButton.title = canDelete ? '댓글을 삭제합니다.' : '삭제 권한이 없습니다.';
   }
 }
